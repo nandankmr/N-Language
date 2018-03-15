@@ -9,7 +9,6 @@ private:
 	string s;
 	int  i, j, a, b, c;
 public:	
-
 	void operator=(string ss)
 	{
 		s = ss;
@@ -90,8 +89,7 @@ public:
 		return p;
 
 	}
-
-	
+		
 	str strip()
 	{
 		str p;
