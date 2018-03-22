@@ -56,8 +56,10 @@ public:
 		if (start != NULL)
 		{
 			q = start;
+			cout << "\"";
 			for (; q != NULL; q = q->next)
 				cout << q->c;
+			cout << "\"";
 			cout << end;
 		}
 	}
@@ -309,60 +311,166 @@ public:
 		}
 		return p;
 	}
-
-
+	
 };
 
-
-template <class T>
+//class list
 
 class list
 {
 	class linkedlist
 	{
-	public:
-			
-		T a;				
-		linkedlist *next;
-	
-	}*start,*p,*q,*r;		
+	public:					
+		char type;
+		int a;
+		str s;
+		list *k;
+		linkedlist *next;	
+	}*start,*p,*q,*r;
 	
 public:
 	list()			//constructor
 	{		
-		start = NULL;		
+		start = NULL;
 	}
 	
-	void append(T ll)
+	void append(int ll)
 	{
 		if (start == NULL)
 		{
 			start = new linkedlist;
 			start->a = ll;
 			start->next = NULL;
+			
 			r = start;
+			start->type = 'i';
 		}
 		else
-		{
-			
+		{			
 			p = new linkedlist;
 			p->a = ll;
+			p->type = 'i';
 			r->next = p;
 			r = r->next;
 			p->next = NULL;
 		}
 	}
 
-	void console()
+	void append(str ll)
 	{
+		if (start == NULL)
+		{
+			start = new linkedlist;
+			start->s = ll;
+			start->next = NULL;
+			r = start;
+			start->type = 's';
+		}
+		else
+		{
+			p = new linkedlist;
+			p->s = ll;
+			p->type = 's';
+			r->next = p;
+			r = r->next;
+			p->next = NULL;
+		}
+	}
+
+	void append(string n)
+	{
+		str ll;
+		ll = n;
+		if (start == NULL)
+		{
+			start = new linkedlist;
+			start->s = ll;
+			start->type = 's';
+			start->next = NULL;
+			r = start;
+		}
+		else
+		{
+			p = new linkedlist;
+			p->s = ll;
+			p->type = 's';
+			r->next = p;
+			r = r->next;
+			p->next = NULL;
+		}
+	}
+
+	void append(list ll)
+	{		
+		if (start == NULL)
+		{
+			start = new linkedlist;
+			start->k = new list;
+			*(start->k) = ll;
+			start->type = 'l';
+			start->next = NULL;
+			r = start;
+		}
+		else
+		{
+			p = new linkedlist;
+			p->k = new list;
+			*(p->k) = ll;
+			p->type = 'l';
+			r->next = p;
+			r = r->next;
+			p->next = NULL;
+		}
+	}
+	
+	void append(list* ll)
+	{
+		if (start == NULL)
+		{
+			start = new linkedlist;
+			start->k = new list;
+			*(start->k) = *ll;
+			start->type = 'l';
+			start->next = NULL;
+			r = start;
+		}
+		else
+		{
+			p = new linkedlist;
+			p->k = new list;
+			*(p->k) = *ll;
+			p->type = 'l';
+			r->next = p;
+			r = r->next;
+			p->next = NULL;
+		}
+	}
+
+	char type(int a)
+	{
+		int i;
+		linkedlist *p;
+		for (p = start, i = 0; p != NULL; p = p->next, i++)
+			if (i == a)
+				return p->type;
+	}
+
+	void console(string end="\n")
+	{
+		linkedlist *q;
 		cout << "[";
 		for (q = start; q != NULL; q = q->next)
 		{
-			cout << q->a;
+			if (q->type == 'i')
+				cout << q->a;
+			else if (q->type == 'l')
+				q->k->console("");
+			else
+				q->s.console("");
 			if (q->next != NULL)
 				cout << ", ";
 		}
-		cout << "]"<<endl;
+		cout << "]"<<end;
 	}
 
 	void clear()
@@ -372,10 +480,20 @@ public:
 
 	list copy()
 	{
-		linkedlist *t;
-		list l;
-		for (t = start; t != NULL; t = t->next)
-			l.append(t->a);
+		list l,t;
+		linkedlist *m;
+		for (m = start; m != NULL; m = m->next)
+		{
+			if (m->type == 'i')
+				l.append(m->a);
+			else if (m->type == 's')
+				l.append((m->s));
+			else
+			{
+				t = m->k->copy();
+				l.append(t);
+			}
+		}
 		return l;
 	}
 	
@@ -393,25 +511,61 @@ public:
 		linkedlist *l;
 		for (i = 0, l = start; l != NULL; l = l->next, i++)
 			if (i == a)
+				if(l->type=='i')
 				return l->a;
 		return -1;
 	}
-
-	void extend(list y)
+	
+	
+	void extend(list x)
 	{
 		int i;
+		list k,y;
+		y = x.copy();
 		for (i = 0; i < y.length(); i++)
-			append(y.data(i));
+		{
+			if (y.type(i) == 'i')
+				append(y.index_int(i));
+			else if (y.type(i) == 's')
+				append(y.index_str(i));
+			else
+			{
+				k = (y.index_list(i))->copy();
+				append(k);
+			}
+		}
 	}
 	
-	int index(int a)
+	int index_int(int a)
 	{
 		int i;
 		linkedlist *l;
 		for (i = 0, l = start; l != NULL; l = l->next, i++)
-			if (l->a == a)
-				return i;
+			if (i == a)
+				return l->a;
 		return -1;
+	}
+	
+	str index_str(int a)
+	{
+		int i;
+		str m;
+		linkedlist *l;
+		for (i = 0, l = start; l != NULL; l = l->next, i++)
+			if (i == a)
+				return l->s;
+		return m;
+	}
+	
+	list* index_list(int a)
+	{
+		int i;
+		list k;
+		linkedlist *l;
+		for (i = 0, l = start; l != NULL; l = l->next, i++)
+			if (i == a)
+				return (l->k);
+		return &k;
 	}
 
 	void insert(int a,int b)			//index,value
@@ -556,6 +710,6 @@ public:
 		l.sort();
 		return l;
 	}
-
-
+	
 };
+
